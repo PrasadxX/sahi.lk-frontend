@@ -160,7 +160,6 @@ export default function ProductDetailPage() {
           toast({
             title: "No items selected",
             description: "Please select quantity for at least one variant.",
-            variant: "destructive",
           });
         }
         return;
@@ -170,7 +169,6 @@ export default function ProductDetailPage() {
           toast({
             title: "Please select a variant",
             description: "Choose a variant before adding to cart.",
-            variant: "destructive",
           });
           return;
         }

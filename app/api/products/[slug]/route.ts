@@ -28,17 +28,18 @@ export async function GET(
       );
     }
 
-    // Add computed inStock field
+    // Add computed inStock field and convert to plain object
+    const productData: any = product;
     const productWithStock = {
-      ...product,
-      _id: product._id.toString(),
-      category: product.category ? {
-        ...product.category,
-        _id: product.category._id.toString(),
+      ...productData,
+      _id: productData._id.toString(),
+      category: productData.category ? {
+        ...productData.category,
+        _id: productData.category._id.toString(),
       } : null,
-      inStock: product.hasVariants
-        ? product.variants?.some((v: any) => v.stock > 0)
-        : product.stock > 0,
+      inStock: productData.hasVariants
+        ? productData.variants?.some((v: any) => v.stock > 0)
+        : productData.stock > 0,
     };
 
     return NextResponse.json(productWithStock);
