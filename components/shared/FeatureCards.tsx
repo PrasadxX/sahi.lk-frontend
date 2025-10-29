@@ -11,6 +11,7 @@ const features = [
     description: "100% genuine electronics from verified brands",
     gradient: "from-violet-500 to-purple-500",
     bgGradient: "from-violet-50 to-purple-50",
+    shadowColor: "shadow-violet-500/50",
   },
   {
     icon: Zap,
@@ -18,6 +19,7 @@ const features = [
     description: "Express shipping across Sri Lanka in 2-3 days",
     gradient: "from-amber-500 to-orange-500",
     bgGradient: "from-amber-50 to-orange-50",
+    shadowColor: "shadow-amber-500/50",
   },
   {
     icon: Lock,
@@ -25,6 +27,7 @@ const features = [
     description: "Protected transactions with multiple payment options",
     gradient: "from-emerald-500 to-teal-500",
     bgGradient: "from-emerald-50 to-teal-50",
+    shadowColor: "shadow-emerald-500/50",
   },
   {
     icon: Award,
@@ -32,6 +35,7 @@ const features = [
     description: "Expert assistance whenever you need help",
     gradient: "from-blue-500 to-indigo-500",
     bgGradient: "from-blue-50 to-indigo-50",
+    shadowColor: "shadow-blue-500/50",
   },
 ];
 
@@ -70,12 +74,19 @@ export function FeatureCards() {
         >
           {features.map((feature, index) => (
             <motion.div key={index} variants={cardVariants}>
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden h-full">
-                <CardContent className="p-6 relative">
-                  {/* Background Gradient */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-                  
-                  <div className="relative z-10">
+              <Card 
+                className={`border-0 shadow-lg transition-all duration-300 group cursor-pointer overflow-hidden h-full relative
+                  ${index === 0 ? 'hover:shadow-2xl hover:shadow-violet-500/50' : ''}
+                  ${index === 1 ? 'hover:shadow-2xl hover:shadow-amber-500/50' : ''}
+                  ${index === 2 ? 'hover:shadow-2xl hover:shadow-emerald-500/50' : ''}
+                  ${index === 3 ? 'hover:shadow-2xl hover:shadow-blue-500/50' : ''}
+                `}
+              >
+                {/* Background Gradient - Moved outside CardContent */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${feature.bgGradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                
+                <CardContent className="p-6 relative z-10">
+                  <div className="relative">
                     {/* Icon */}
                     <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br ${feature.gradient} mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                       <feature.icon className="h-7 w-7 text-white" />

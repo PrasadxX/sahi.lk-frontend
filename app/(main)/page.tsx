@@ -20,13 +20,13 @@ export default function HomePage() {
       <FeatureCards />
       
       {/* Shop by Category - Visual category grid */}
-      <CategoryShowcase />
+      {/* <CategoryShowcase /> */}
       
       {/* Recently Added Products - New arrivals */}
       <RecentlyAdded />
       
       {/* Featured Products - Best sellers */}
-      <FeaturedProducts />
+      {/* <FeaturedProducts /> */}
       
       {/* Flash Deals - Timer-based promotions */}
       {/* <FlashDeals /> */}

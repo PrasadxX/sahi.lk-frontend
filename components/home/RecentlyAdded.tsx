@@ -110,10 +110,10 @@ export function RecentlyAdded() {
             New Arrivals
           </Badge>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-violet-700 to-purple-900">
-            Recently Added Products
+            Discover our latest arrivals
           </h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            Discover our latest tech arrivals - Fresh inventory just for you
+            Fresh inventory just for you
           </p>
         </motion.div>
 
