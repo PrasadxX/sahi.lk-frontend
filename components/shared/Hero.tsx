@@ -223,27 +223,7 @@ export function Hero() {
                   {currentProduct.description}
                 </p>
                 
-                {/* Quick Info Icons */}
-                <div className="flex flex-wrap items-center gap-5 text-sm text-white/90 font-medium">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                      <span className="text-xs">✓</span>
-                    </div>
-                    <span>Authentic</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                      <span className="text-xs">🚚</span>
-                    </div>
-                    <span>Fast Shipping</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                      <span className="text-xs">🔒</span>
-                    </div>
-                    <span>Secure Payment</span>
-                  </div>
-                </div>
+                
               </div>
 
               {/* Price Section - Simplified */}
@@ -266,11 +246,6 @@ export function Hero() {
                     {formatPrice(currentProduct.price)}
                   </span>
                 </div>
-                {currentProduct.category && (
-                  <Badge className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-4 py-2 text-sm font-bold mb-2 shadow-lg shadow-white/10">
-                    {currentProduct.category.name}
-                  </Badge>
-                )}
               </div>
 
               {/* Stock Status - Simplified */}
@@ -455,27 +430,7 @@ export function Hero() {
             </Button>
           </div>
           
-          {/* Trust Badges */}
-          <div className="flex flex-wrap justify-center gap-3 mt-4 text-white">
-            <div className="flex items-center gap-1">
-              <div className="w-7 h-7 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                <span className="text-sm">🔒</span>
-              </div>
-              <span className="text-[11px] font-semibold">Secure Payment</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-7 h-7 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                <span className="text-sm">⚡</span>
-              </div>
-              <span className="text-[11px] font-semibold">Fast Delivery</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-7 h-7 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border border-white/20">
-                <span className="text-sm">✓</span>
-              </div>
-              <span className="text-[11px] font-semibold">Quality Guaranteed</span>
-            </div>
-          </div>
+          
         </div>
       </div>
     </section>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, Search, ShoppingCart, User, X, ChevronDown } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { siteConfig } from "@/config/site";
@@ -26,6 +26,7 @@ export function Navbar() {
   const { data: categories } = useCategories();
   const { data: products } = useProducts();
   const searchRef = useRef<HTMLDivElement>(null);
+  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Only get item count after mount to avoid hydration mismatch
   const itemCount = isMounted ? getItemCount() : 0;
@@ -102,12 +103,20 @@ export function Navbar() {
   return (
     <>
       <header className={`sticky top-0 z-50 w-full transition-colors duration-300 ${isScrolled ? "border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80" : "bg-transparent border-0"}`}>
-        {/* Top mini-bar */}
-        <div className={`w-full bg-slate-900 text-white text-sm leading-6 ${isScrolled ? "" : "opacity-95"}`}>
-          <div className="container mx-auto px-4 py-1.5 flex items-center justify-center">
-            <span className="truncate text-xs">
-              🚚 Free islandwide delivery on orders above Rs. 10,000 &nbsp;|&nbsp; 💬 WhatsApp Support: {siteConfig.contact.phone}
-            </span>
+        {/* Top mini-bar with scrolling text */}
+        <div className={`w-full bg-slate-900 text-white text-sm leading-6 ${isScrolled ? "" : "opacity-95"} overflow-hidden`}>
+          <div className="py-1.5 flex items-center">
+            <div className="animate-marquee whitespace-nowrap flex items-center">
+              <span className="text-xs mx-8">
+                🚚 Free islandwide delivery on orders above Rs. 10,000 &nbsp;|&nbsp; 💬 WhatsApp Support: {siteConfig.contact.phone}
+              </span>
+              <span className="text-xs mx-8">
+                🚚 Free islandwide delivery on orders above Rs. 10,000 &nbsp;|&nbsp; 💬 WhatsApp Support: {siteConfig.contact.phone}
+              </span>
+              <span className="text-xs mx-8">
+                🚚 Free islandwide delivery on orders above Rs. 10,000 &nbsp;|&nbsp; 💬 WhatsApp Support: {siteConfig.contact.phone}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -135,8 +144,17 @@ export function Navbar() {
               {/* Categories Dropdown */}
               <div 
                 className="relative"
-                onMouseEnter={() => setIsCategoriesOpen(true)}
-                onMouseLeave={() => setIsCategoriesOpen(false)}
+                onMouseEnter={() => {
+                  if (dropdownTimeoutRef.current) {
+                    clearTimeout(dropdownTimeoutRef.current);
+                  }
+                  setIsCategoriesOpen(true);
+                }}
+                onMouseLeave={() => {
+                  dropdownTimeoutRef.current = setTimeout(() => {
+                    setIsCategoriesOpen(false);
+                  }, 150);
+                }}
               >
                 <button className="text-sm font-medium text-slate-700 hover:text-violet-600 transition-colors flex items-center gap-1">
                   Categories
@@ -145,25 +163,27 @@ export function Navbar() {
                 
                 {/* Dropdown Menu */}
                 {isCategoriesOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-slate-200 rounded-lg shadow-xl py-2 animate-in fade-in slide-in-from-top-2">
-                    <Link
-                      href="/products"
-                      className="block px-4 py-2 text-sm text-slate-700 hover:bg-violet-50 hover:text-violet-600 transition-colors"
-                      onClick={() => setIsCategoriesOpen(false)}
-                    >
-                      All Products
-                    </Link>
-                    <div className="border-t border-slate-200 my-2"></div>
-                    {categories?.map((category) => (
+                  <div className="absolute top-full left-0 pt-2">
+                    <div className="w-64 bg-white border border-slate-200 rounded-lg shadow-xl py-2 animate-in fade-in slide-in-from-top-2">
                       <Link
-                        key={category._id}
-                        href={`/products?category=${category._id}`}
+                        href="/products"
                         className="block px-4 py-2 text-sm text-slate-700 hover:bg-violet-50 hover:text-violet-600 transition-colors"
                         onClick={() => setIsCategoriesOpen(false)}
                       >
-                        {category.name}
+                        All Products
                       </Link>
-                    ))}
+                      <div className="border-t border-slate-200 my-2"></div>
+                      {categories?.map((category) => (
+                        <Link
+                          key={category._id}
+                          href={`/products?category=${encodeURIComponent(category.slug || category.name)}`}
+                          className="block px-4 py-2 text-sm text-slate-700 hover:bg-violet-50 hover:text-violet-600 transition-colors"
+                          onClick={() => setIsCategoriesOpen(false)}
+                        >
+                          {category.name}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -195,14 +215,6 @@ export function Navbar() {
                   </span>
                 )}
                 <span className="sr-only">Shopping cart</span>
-              </Button>
-
-              {/* User Account */}
-              <Button variant="ghost" size="icon" asChild className="hidden md:flex hover:bg-violet-50">
-                <Link href="/account">
-                  <User className="h-5 w-5" />
-                  <span className="sr-only">Account</span>
-                </Link>
               </Button>
 
               {/* Mobile Menu Toggle */}

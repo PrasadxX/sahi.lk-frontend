@@ -23,6 +23,7 @@ export interface Product {
   category?: {
     _id: string
     name: string
+    slug?: string
   }
   properties?: Record<string, string>
   inStock?: boolean
@@ -38,6 +39,7 @@ export interface Product {
 export interface Category {
   _id: string
   name: string
+  slug?: string
   parent?: Category
   properties?: CategoryProperty[]
 }

@@ -52,7 +52,8 @@ function ProductsContent() {
       
       const matchesCategory = !selectedCategory || 
         product.category?._id === selectedCategory ||
-        product.category?.name === selectedCategory;
+        product.category?.name === selectedCategory ||
+        product.category?.slug === selectedCategory;
       
       return matchesSearch && matchesCategory;
     });
