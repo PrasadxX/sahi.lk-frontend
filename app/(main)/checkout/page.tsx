@@ -61,7 +61,6 @@ export default function CheckoutPage() {
       toast({
         title: "File too large",
         description: "Please upload a file smaller than 20MB",
-        variant: "destructive",
       });
       return;
     }
@@ -72,7 +71,6 @@ export default function CheckoutPage() {
       toast({
         title: "Invalid file type",
         description: "Please upload a JPEG, PNG, or PDF file",
-        variant: "destructive",
       });
       return;
     }
@@ -104,7 +102,6 @@ export default function CheckoutPage() {
       toast({
         title: "Bank slip required",
         description: "Please upload your bank transfer slip",
-        variant: "destructive",
       });
       return;
     }
@@ -210,7 +207,6 @@ export default function CheckoutPage() {
       toast({
         title: "Order failed",
         description: "There was an error placing your order. Please try again.",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
