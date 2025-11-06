@@ -173,7 +173,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-slate-200">
-          {/* Payment Methods & Security */}
+          {/* Payment Methods & Security
           <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <span className="font-medium">We Accept:</span>
@@ -199,7 +199,7 @@ export function Footer() {
               </svg>
               <span className="font-semibold text-green-700">SSL Secure</span>
             </div>
-          </div>
+          </div>*/}
 
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-sm">
             <p className="text-gray-600 text-center md:text-left">

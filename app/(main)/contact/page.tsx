@@ -100,10 +100,6 @@ export default function ContactPage() {
                   <div>
                     <div className="font-medium">Address</div>
                     <div className="text-gray-600">
-                      123 Galle Road,
-                      <br />
-                      Colombo 03,
-                      <br />
                       Sri Lanka
                     </div>
                   </div>
@@ -126,10 +122,10 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Map placeholder */}
+            {/* Map placeholder 
             <div className="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
               <p className="text-gray-500">Map Integration</p>
-            </div>
+            </div>*/}
           </div>
 
           {/* Contact Form */}
@@ -153,7 +149,7 @@ export default function ContactPage() {
                     required
                     value={formData.name}
                     onChange={handleChange}
-                    placeholder="John Doe"
+                    placeholder="Your full name"
                   />
                 </div>
 
@@ -173,7 +169,7 @@ export default function ContactPage() {
                       required
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="john@example.com"
+                      placeholder="Your email address"
                     />
                   </div>
 
@@ -190,7 +186,7 @@ export default function ContactPage() {
                       type="tel"
                       value={formData.phone}
                       onChange={handleChange}
-                      placeholder="+94 71 234 5678"
+                      placeholder="Your phone number"
                     />
                   </div>
                 </div>

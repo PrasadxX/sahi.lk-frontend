@@ -10,7 +10,6 @@ import { formatPrice } from "@/lib/utils";
 import { 
   CheckCircle2, 
   Home, 
-  Printer, 
   Package, 
   CreditCard,
   MapPin,
@@ -151,10 +150,6 @@ export default function OrderConfirmationPage() {
     fetchOrderDetails();
   }, [orderId]);
 
-  const handlePrint = () => {
-    window.print();
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -211,10 +206,6 @@ export default function OrderConfirmationPage() {
 
         {/* Action Buttons - Hide on print */}
         <div className="flex gap-3 justify-center mb-8 print:hidden">
-          <Button onClick={handlePrint} variant="outline" size="lg">
-            <Printer className="mr-2 h-4 w-4" />
-            Print Order
-          </Button>
           <Button asChild size="lg" className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700">
             <Link href="/">
               <Home className="mr-2 h-4 w-4" />
