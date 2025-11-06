@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/store/cart";
@@ -9,10 +10,16 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function CartSheet() {
-  const { items, isOpen, closeCart, updateQuantity, removeItem, itemCount } = useCartStore();
+  const { items, isOpen, closeCart, updateQuantity, removeItem, getItemCount, getSubtotal, deliveryFee, getTotal, fetchDeliveryFee } = useCartStore();
   
-  // Calculate total from items directly to ensure accuracy
-  const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  // Fetch delivery fee on mount
+  useEffect(() => {
+    fetchDeliveryFee();
+  }, [fetchDeliveryFee]);
+
+  const itemCount = getItemCount();
+  const subtotal = getSubtotal();
+  const total = getTotal();
 
   return (
     <AnimatePresence>
@@ -85,52 +92,51 @@ export function CartSheet() {
                           <Link
                             href={`/products/${item.slug || item.productId}`}
                             onClick={closeCart}
-                            className="text-sm font-medium hover:text-primary line-clamp-2"
+                            className="text-sm font-medium hover:text-primary line-clamp-2 mb-1"
                           >
                             {item.title}
                           </Link>
                           
-                          <div className="mt-1 text-xs text-slate-500">
+                          <div className="text-xs text-slate-500 mb-2">
                             {formatPrice(item.price)} each
                           </div>
                           
-                          <div className="mt-auto flex items-center justify-between">
-                            {/* Quantity Controls */}
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
-                              >
-                                <Minus className="h-3 w-3" />
-                              </Button>
-                              <span className="w-8 text-center text-sm">{item.quantity}</span>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-7 w-7"
-                                onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
-                              >
-                                <Plus className="h-3 w-3" />
-                              </Button>
-                            </div>
+                          <div className="mt-auto">
+                            {/* Quantity Controls and Price */}
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span className="w-8 text-center text-sm">{item.quantity}</span>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                              </div>
 
-                            {/* Price */}
-                            <div className="text-right">
                               <div className="text-sm font-semibold">
                                 {formatPrice(item.price * item.quantity)}
                               </div>
                             </div>
-                          </div>
 
-                          {/* Remove Button */}
-                          <button
-                            onClick={() => removeItem(item.productId, item.variantId)}
-                            className="mt-2 text-xs text-red-600 hover:text-red-700"
-                          >
-                            Remove
-                          </button>
+                            {/* Remove Button */}
+                            <button
+                              onClick={() => removeItem(item.productId, item.variantId)}
+                              className="text-xs text-red-600 hover:text-red-700 text-left"
+                            >
+                              Remove
+                            </button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -142,14 +148,29 @@ export function CartSheet() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="border-t p-4 space-y-4">
+                {/* Subtotal */}
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-600">Subtotal:</span>
+                  <span className="font-medium">{formatPrice(subtotal)}</span>
+                </div>
+
+                {/* Delivery Fee */}
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-slate-600">Delivery Fee:</span>
+                  <span className="font-medium">{formatPrice(deliveryFee)}</span>
+                </div>
+
+                {/* Divider */}
+                <div className="border-t"></div>
+
                 {/* Total */}
-                <div className="flex items-center justify-between text-lg font-semibold">
+                <div className="flex items-center justify-between text-lg font-bold">
                   <span>Total:</span>
-                  <span>{formatPrice(total)}</span>
+                  <span className="text-violet-700">{formatPrice(total)}</span>
                 </div>
 
                 {/* Checkout Button */}
-                <Button className="w-full" size="lg" asChild>
+                <Button className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700" size="lg" asChild>
                   <Link href="/checkout" onClick={closeCart}>
                     Proceed to Checkout
                   </Link>

@@ -14,6 +14,7 @@ export interface CartItem {
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
+  deliveryFee: number;
   
   // Actions
   addItem: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
@@ -23,10 +24,12 @@ interface CartStore {
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
+  fetchDeliveryFee: () => Promise<void>;
   
-  // Computed
-  itemCount: number;
-  total: number;
+  // Computed - as functions that access state
+  getItemCount: () => number;
+  getSubtotal: () => number;
+  getTotal: () => number;
 }
 
 // Helper function to create unique cart item key
@@ -39,6 +42,7 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      deliveryFee: 0,
       
       addItem: (item) => {
         const items = get().items;
@@ -103,12 +107,33 @@ export const useCartStore = create<CartStore>()(
         set({ isOpen: false });
       },
       
-      get itemCount() {
+      fetchDeliveryFee: async () => {
+        try {
+          const response = await fetch('/api/settings?name=deliveryFee');
+          if (response.ok) {
+            const setting = await response.json();
+            const fee = parseFloat(setting.value) || 0;
+            set({ deliveryFee: fee });
+          }
+        } catch (error) {
+          console.error('Error fetching delivery fee:', error);
+          // Set default delivery fee if fetch fails
+          set({ deliveryFee: 350 });
+        }
+      },
+      
+      getItemCount: () => {
         return get().items.reduce((total, item) => total + item.quantity, 0);
       },
       
-      get total() {
+      getSubtotal: () => {
         return get().items.reduce((total, item) => total + item.price * item.quantity, 0);
+      },
+      
+      getTotal: () => {
+        const subtotal = get().getSubtotal();
+        const deliveryFee = get().items.length > 0 ? get().deliveryFee : 0;
+        return subtotal + deliveryFee;
       },
     }),
     {

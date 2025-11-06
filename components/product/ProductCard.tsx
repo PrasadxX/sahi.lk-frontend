@@ -62,84 +62,74 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link href={`/products/${product.slug || product._id}`}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true }}
-        whileHover={{ y: -4 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Card className="group overflow-hidden border-none shadow-md hover:shadow-xl transition-all duration-300 h-full cursor-pointer">
-          <CardContent className="p-0 flex flex-col h-full">
-            {/* Image Container */}
-            <div className="relative w-full h-56 overflow-hidden bg-gray-100">
-              <Image
-                src={mainImage}
-                alt={product.title}
-                fill
-                className="object-contain transition-transform duration-500 group-hover:scale-110 p-2"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              />
+      <Card className="group h-full border-2 border-slate-200 hover:border-violet-300 hover:shadow-2xl hover:shadow-violet-500/10 transition-all duration-300 overflow-hidden bg-white">
+        <CardContent className="p-0">
+          {/* Product Image */}
+          <div className="relative aspect-square bg-gradient-to-br from-violet-50 to-purple-50 overflow-hidden">
+            <Image
+              src={mainImage}
+              alt={product.title}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-contain p-4 group-hover:scale-110 transition-transform duration-500"
+            />
             
-            {/* Badges */}
-            <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {/* Badges - Top Left */}
+            <div className="absolute top-3 left-3 flex flex-col gap-1">
+              {/* Stock Status Badge - Always show */}
+              {!product.hasVariants && (
+                product.inStock !== false ? (
+                  <Badge className="bg-gradient-to-r from-emerald-500 to-green-500 text-white border-0 shadow-lg">
+                    In Stock
+                  </Badge>
+                ) : (
+                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 shadow-lg">
+                    Out of Stock
+                  </Badge>
+                )
+              )}
+              {/* Featured Badge */}
               {product.featured && (
-                <Badge className="bg-blue-600 hover:bg-blue-700 text-xs px-2 py-0.5">Featured</Badge>
-              )}
-              {!product.inStock && (
-                <Badge variant="destructive" className="text-xs px-2 py-0.5">Out of Stock</Badge>
+                <Badge className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-0 shadow-lg">
+                  Featured
+                </Badge>
               )}
             </div>
-            
-            {/* Quick Actions */}
-            <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button
-                size="icon"
-                variant="secondary"
-                className="h-8 w-8 rounded-full bg-white/90 hover:bg-white"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              >
-                <Heart className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+
+            {/* Quick Add Button */}
+            <Button
+              size="sm"
+              onClick={handleAddToCart}
+              disabled={!product.inStock && !product.hasVariants}
+              className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-violet-600 hover:bg-violet-700 text-white rounded-full w-10 h-10 p-0 shadow-xl"
+            >
+              <ShoppingCart className="h-4 w-4" />
+            </Button>
           </div>
-          
+
           {/* Product Info */}
-          <div className="p-3 flex flex-col text-center h-40">
+          <div className="p-4 space-y-2">
+            {/* Category */}
             {product.category && (
-              <div className="text-[10px] text-gray-500 uppercase tracking-wide font-medium mb-1">
+              <Badge variant="outline" className="text-xs font-medium text-violet-700 border-violet-300">
                 {product.category.name}
-              </div>
+              </Badge>
             )}
-            
-            <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 group-hover:text-primary transition-colors leading-snug min-h-[2.5rem] mb-2">
+
+            {/* Title */}
+            <h3 className="font-bold text-slate-900 line-clamp-2 group-hover:text-violet-700 transition-colors min-h-[3rem]">
               {product.title}
             </h3>
-            
-            <div className="mt-auto flex flex-col items-center gap-2">
-              <div>
-                <div className="text-lg font-bold text-gray-900">
-                  {getPriceDisplay()}
-                </div>
-              </div>
-              
-              <Button
-                size="sm"
-                className="rounded-full h-8 text-xs px-3"
-                disabled={!product.inStock && !product.hasVariants}
-                onClick={handleAddToCart}
-              >
-                <ShoppingCart className="h-3.5 w-3.5 mr-1" />
-                {product.hasVariants ? 'View' : 'Add'}
-              </Button>
+
+            {/* Price Only */}
+            <div className="pt-2">
+              <span className="text-2xl font-black text-violet-700">
+                {getPriceDisplay()}
+              </span>
             </div>
           </div>
         </CardContent>
       </Card>
-    </motion.div>
     </Link>
   );
 }

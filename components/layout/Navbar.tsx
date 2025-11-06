@@ -21,10 +21,19 @@ export function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { itemCount, openCart } = useCartStore();
+  const [isMounted, setIsMounted] = useState(false);
+  const { getItemCount, openCart } = useCartStore();
   const { data: categories } = useCategories();
   const { data: products } = useProducts();
   const searchRef = useRef<HTMLDivElement>(null);
+
+  // Only get item count after mount to avoid hydration mismatch
+  const itemCount = isMounted ? getItemCount() : 0;
+
+  // Set mounted state
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Filter products based on search query
   const searchResults = searchQuery.trim().length > 0 
