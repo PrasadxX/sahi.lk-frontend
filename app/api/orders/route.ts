@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
     console.log(`Order created successfully: ${savedOrder.orderId}`);
 
     // Send order confirmation email (don't wait for it)
+    console.log(`Attempting to send order confirmation email to ${savedOrder.email}`);
     sendOrderConfirmationEmail({
       orderId: savedOrder.orderId,
       customerName: `${savedOrder.firstName} ${savedOrder.lastName}`,
@@ -99,6 +100,12 @@ export async function POST(request: NextRequest) {
       address: savedOrder.address,
       city: savedOrder.city,
       phone: savedOrder.phone,
+    }).then(success => {
+      if (success) {
+        console.log(`✓ Order confirmation email sent successfully to ${savedOrder.email}`);
+      } else {
+        console.error(`✗ Failed to send order confirmation email to ${savedOrder.email}`);
+      }
     }).catch(error => {
       console.error('Failed to send order confirmation email:', error);
       // Don't fail the order creation if email fails

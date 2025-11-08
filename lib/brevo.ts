@@ -46,13 +46,21 @@ const SENDER_NAME = process.env.SENDER_NAME || 'Sahi.LK';
  */
 export async function sendEmail(params: EmailParams, retries = 3): Promise<boolean> {
   if (!BREVO_API_KEY) {
-    console.error('BREVO_API_KEY is not configured');
+    console.error('❌ BREVO_API_KEY is not configured');
     return false;
   }
 
+  if (!SENDER_EMAIL) {
+    console.error('❌ SENDER_EMAIL is not configured');
+    return false;
+  }
+
+  console.log(`📧 Preparing to send email to: ${params.to[0]?.email}`);
+  console.log(`📧 Subject: ${params.subject}`);
+
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`Sending email (attempt ${attempt}/${retries})...`);
+      console.log(`📤 Sending email (attempt ${attempt}/${retries})...`);
       
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
@@ -78,24 +86,25 @@ export async function sendEmail(params: EmailParams, retries = 3): Promise<boole
 
       if (!response.ok) {
         const error = await response.json();
-        console.error('Brevo API error:', error);
+        console.error('❌ Brevo API error:', error);
         
         // Don't retry on client errors (4xx)
         if (response.status >= 400 && response.status < 500) {
+          console.error(`❌ Client error ${response.status}, not retrying`);
           return false;
         }
         
         throw new Error(`HTTP ${response.status}: ${JSON.stringify(error)}`);
       }
 
-      console.log('✓ Email sent successfully');
+      console.log('✅ Email sent successfully!');
       return true;
     } catch (error: any) {
-      console.error(`Error sending email (attempt ${attempt}/${retries}):`, error.message);
+      console.error(`❌ Error sending email (attempt ${attempt}/${retries}):`, error.message);
       
       // If this is the last attempt, log it for manual retry
       if (attempt === retries) {
-        console.error('All email sending attempts failed');
+        console.error('❌ All email sending attempts failed');
         
         // Log failed email for later retry
         logFailedEmail({
@@ -111,7 +120,7 @@ export async function sendEmail(params: EmailParams, retries = 3): Promise<boole
       
       // Wait before retrying (exponential backoff)
       const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-      console.log(`Retrying in ${delay}ms...`);
+      console.log(`⏳ Retrying in ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
