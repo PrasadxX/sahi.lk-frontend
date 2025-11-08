@@ -1,3 +1,5 @@
+import { logFailedEmail } from './email-fallback';
+
 /**
  * Brevo (formerly Sendinblue) Email Service
  * 
@@ -40,43 +42,81 @@ const SENDER_EMAIL = process.env.SENDER_EMAIL || 'noreply@sahi.lk';
 const SENDER_NAME = process.env.SENDER_NAME || 'Sahi.LK';
 
 /**
- * Send email using Brevo API
+ * Send email using Brevo API with retry logic
  */
-export async function sendEmail(params: EmailParams): Promise<boolean> {
+export async function sendEmail(params: EmailParams, retries = 3): Promise<boolean> {
   if (!BREVO_API_KEY) {
     console.error('BREVO_API_KEY is not configured');
     return false;
   }
 
-  try {
-    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-      method: 'POST',
-      headers: {
-        'accept': 'application/json',
-        'api-key': BREVO_API_KEY,
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        sender: { email: SENDER_EMAIL, name: SENDER_NAME },
-        to: params.to,
-        subject: params.subject,
-        htmlContent: params.htmlContent,
-        textContent: params.textContent,
-      }),
-    });
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      console.log(`Sending email (attempt ${attempt}/${retries})...`);
+      
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-    if (!response.ok) {
-      const error = await response.json();
-      console.error('Brevo API error:', error);
-      return false;
+      const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': BREVO_API_KEY,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          sender: { email: SENDER_EMAIL, name: SENDER_NAME },
+          to: params.to,
+          subject: params.subject,
+          htmlContent: params.htmlContent,
+          textContent: params.textContent,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Brevo API error:', error);
+        
+        // Don't retry on client errors (4xx)
+        if (response.status >= 400 && response.status < 500) {
+          return false;
+        }
+        
+        throw new Error(`HTTP ${response.status}: ${JSON.stringify(error)}`);
+      }
+
+      console.log('✓ Email sent successfully');
+      return true;
+    } catch (error: any) {
+      console.error(`Error sending email (attempt ${attempt}/${retries}):`, error.message);
+      
+      // If this is the last attempt, log it for manual retry
+      if (attempt === retries) {
+        console.error('All email sending attempts failed');
+        
+        // Log failed email for later retry
+        logFailedEmail({
+          timestamp: new Date().toISOString(),
+          to: params.to[0]?.email || 'unknown',
+          subject: params.subject,
+          orderId: params.subject.match(/ORD-[A-Z0-9-]+/)?.[0] || 'unknown',
+          error: error.message,
+        });
+        
+        return false;
+      }
+      
+      // Wait before retrying (exponential backoff)
+      const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+      console.log(`Retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
-
-    console.log('Email sent successfully');
-    return true;
-  } catch (error) {
-    console.error('Error sending email:', error);
-    return false;
   }
+
+  return false;
 }
 
 /**
