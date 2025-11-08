@@ -43,8 +43,9 @@ const SENDER_NAME = process.env.SENDER_NAME || 'Sahi.LK';
 
 /**
  * Send email using Brevo API with retry logic
+ * Optimized for Vercel serverless with shorter timeout
  */
-export async function sendEmail(params: EmailParams, retries = 3): Promise<boolean> {
+export async function sendEmail(params: EmailParams, retries = 2): Promise<boolean> {
   if (!BREVO_API_KEY) {
     console.error('❌ BREVO_API_KEY is not configured');
     return false;
@@ -63,7 +64,7 @@ export async function sendEmail(params: EmailParams, retries = 3): Promise<boole
       console.log(`📤 Sending email (attempt ${attempt}/${retries})...`);
       
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      const timeout = setTimeout(() => controller.abort(), 8000); // 8 second timeout for Vercel
 
       const response = await fetch('https://api.brevo.com/v3/smtp/email', {
         method: 'POST',
@@ -118,8 +119,8 @@ export async function sendEmail(params: EmailParams, retries = 3): Promise<boole
         return false;
       }
       
-      // Wait before retrying (exponential backoff)
-      const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+      // Wait before retrying (shorter delay for Vercel)
+      const delay = 1000; // Fixed 1 second delay
       console.log(`⏳ Retrying in ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
     }

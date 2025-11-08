@@ -3,6 +3,10 @@ import connectDB from "@/lib/mongodb";
 import { Order } from "@/models/Order";
 import { sendOrderConfirmationEmail } from "@/lib/brevo";
 
+// Increase function timeout for Vercel (max 60s on Pro plan, 10s on Hobby)
+export const maxDuration = 10; // seconds
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // Connect to database
@@ -82,33 +86,39 @@ export async function POST(request: NextRequest) {
 
     console.log(`Order created successfully: ${savedOrder.orderId}`);
 
-    // Send order confirmation email (don't wait for it)
+    // Send order confirmation email asynchronously (fire and forget)
+    // Don't await it to avoid blocking the response
     console.log(`Attempting to send order confirmation email to ${savedOrder.email}`);
-    sendOrderConfirmationEmail({
-      orderId: savedOrder.orderId,
-      customerName: `${savedOrder.firstName} ${savedOrder.lastName}`,
-      customerEmail: savedOrder.email,
-      items: savedOrder.products.map((p: any) => ({
-        title: p.title,
-        quantity: p.quantity,
-        price: p.price,
-      })),
-      subtotal: savedOrder.subtotal,
-      deliveryFee: savedOrder.deliveryFee,
-      total: savedOrder.total,
-      paymentMethod: savedOrder.paymentMethod,
-      address: savedOrder.address,
-      city: savedOrder.city,
-      phone: savedOrder.phone,
-    }).then(success => {
-      if (success) {
-        console.log(`✓ Order confirmation email sent successfully to ${savedOrder.email}`);
-      } else {
-        console.error(`✗ Failed to send order confirmation email to ${savedOrder.email}`);
+    
+    // Use Promise.resolve() to ensure it runs in background without blocking
+    Promise.resolve().then(async () => {
+      try {
+        const emailSent = await sendOrderConfirmationEmail({
+          orderId: savedOrder.orderId,
+          customerName: `${savedOrder.firstName} ${savedOrder.lastName}`,
+          customerEmail: savedOrder.email,
+          items: savedOrder.products.map((p: any) => ({
+            title: p.title,
+            quantity: p.quantity,
+            price: p.price,
+          })),
+          subtotal: savedOrder.subtotal,
+          deliveryFee: savedOrder.deliveryFee,
+          total: savedOrder.total,
+          paymentMethod: savedOrder.paymentMethod,
+          address: savedOrder.address,
+          city: savedOrder.city,
+          phone: savedOrder.phone,
+        });
+        
+        if (emailSent) {
+          console.log(`✓ Order confirmation email sent successfully to ${savedOrder.email}`);
+        } else {
+          console.error(`✗ Failed to send order confirmation email to ${savedOrder.email}`);
+        }
+      } catch (error) {
+        console.error('Failed to send order confirmation email:', error);
       }
-    }).catch(error => {
-      console.error('Failed to send order confirmation email:', error);
-      // Don't fail the order creation if email fails
     });
 
     return NextResponse.json({
