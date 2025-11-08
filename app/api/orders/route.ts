@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import { Order } from "@/models/Order";
+import { sendOrderConfirmationEmail } from "@/lib/brevo";
 
 export async function POST(request: NextRequest) {
   try {
@@ -80,6 +81,28 @@ export async function POST(request: NextRequest) {
     const savedOrder = await newOrder.save();
 
     console.log(`Order created successfully: ${savedOrder.orderId}`);
+
+    // Send order confirmation email (don't wait for it)
+    sendOrderConfirmationEmail({
+      orderId: savedOrder.orderId,
+      customerName: `${savedOrder.firstName} ${savedOrder.lastName}`,
+      customerEmail: savedOrder.email,
+      items: savedOrder.products.map((p: any) => ({
+        title: p.title,
+        quantity: p.quantity,
+        price: p.price,
+      })),
+      subtotal: savedOrder.subtotal,
+      deliveryFee: savedOrder.deliveryFee,
+      total: savedOrder.total,
+      paymentMethod: savedOrder.paymentMethod,
+      address: savedOrder.address,
+      city: savedOrder.city,
+      phone: savedOrder.phone,
+    }).catch(error => {
+      console.error('Failed to send order confirmation email:', error);
+      // Don't fail the order creation if email fails
+    });
 
     return NextResponse.json({
       success: true,
